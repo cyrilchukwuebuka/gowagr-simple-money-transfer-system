@@ -1,10 +1,7 @@
 import {
-  IsDateString,
-  IsEmail,
-  IsEmpty,
   IsEnum,
   IsString,
-  MinLength,
+  MinLength
 } from 'class-validator';
 import { Gender } from '../entities/user.entity';
 

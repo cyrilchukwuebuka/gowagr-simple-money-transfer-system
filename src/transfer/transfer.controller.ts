@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TransferService } from './transfer.service';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { ReqUser } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { transfers } from 'src/utils/routes';
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { UpdateTransferDto } from './dto/update-transfer.dto';
+import { TransferService } from './transfer.service';
 
-@Controller('transfer')
+@Controller(transfers)
+@UseGuards(JwtAuthGuard)
 export class TransferController {
   constructor(private readonly transferService: TransferService) {}
 
   @Post()
-  create(@Body() createTransferDto: CreateTransferDto) {
-    return this.transferService.create(createTransferDto);
+  create(
+    @Req() req: Request & ReqUser,
+    @Body() createTransferDto: CreateTransferDto,
+  ) {
+    return this.transferService.create(req.user.id, createTransferDto);
   }
 
   @Get()
-  findAll() {
-    return this.transferService.findAll();
+  findAll(@Req() req: Request & ReqUser, @Paginate() query: PaginateQuery) {
+    return this.transferService.findAll(req.user.id, query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transferService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransferDto: UpdateTransferDto) {
-    return this.transferService.update(+id, updateTransferDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transferService.remove(+id);
+  findOne(@Req() req: Request & ReqUser, @Param('id') id: string) {
+    return this.transferService.findOne(req.user.id, id);
   }
 }

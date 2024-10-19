@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "doc": "jsdoc -c jsdoc.json"
   },
   "engines": {
     "npm": ">=8.0.0",
@@ -31,6 +32,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.4.4",
+    "@nestjs/swagger": "^7.4.2",
     "@nestjs/throttler": "^6.2.1",
     "@nestjs/typeorm": "^10.0.2",
     "bcrypt": "^5.1.1",
@@ -39,10 +41,12 @@
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
     "helmet": "^8.0.0",
+    "jsdoc": "^4.0.3",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "morgan": "^1.10.0",
     "nestjs-paginate": "^9.1.2",
+    "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.13.0",
     "reflect-metadata": "^0.2.1",

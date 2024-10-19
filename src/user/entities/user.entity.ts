@@ -3,17 +3,18 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
-  IsNumber,
   IsOptional,
   IsString
 } from 'class-validator';
 import { BaseTable } from 'src/base/base.table';
 import { Balance } from 'src/transfer/entities/balance.entity';
+import { Transfer } from 'src/transfer/entities/transfer.entity';
 import {
   BeforeInsert,
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne
 } from 'typeorm';
 
@@ -24,7 +25,7 @@ export enum Gender {
 }
 
 @Entity({
-  name: 'auth',
+  name: 'user',
 })
 export class User extends BaseTable {
   @Column({ type: 'varchar', default: null })
@@ -67,6 +68,12 @@ export class User extends BaseTable {
   @OneToOne(() => Balance, (balance) => balance.user)
   @JoinColumn()
   balance: Balance;
+
+  @OneToMany(() => Transfer, (transfer) => transfer.sender)
+  sentTransfers: Transfer[];
+
+  @OneToMany(() => Transfer, (transfer) => transfer.receiver)
+  receivedTransfers: Transfer[];
 
   async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(12);

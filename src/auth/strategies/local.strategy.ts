@@ -7,6 +7,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
 
+/**
+ * Represents a strategy for handling local Passport Strategy in the system.
+ * @class
+ */
 @Injectable()
 @Dependencies(AuthService)
 export class LocalStrategy extends PassportStrategy(Strategy) {

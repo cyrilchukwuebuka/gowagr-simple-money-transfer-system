@@ -5,12 +5,23 @@ import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { errorHandler } from './middleware/error';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const localhost = new RegExp('^https?://localhost*(:[0-9]+)?(/.*)?$');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Core Service');
+
+  const config = new DocumentBuilder()
+    .setTitle('GoWagr API Documentation')
+    .setDescription('A simple API documentation for the GoWagr Service')
+    .setVersion('1.0.0')
+    .addTag('GoWagr')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
   app.use(morgan('dev'));
   app.use(errorHandler);
   app.useGlobalPipes(new ValidationPipe());

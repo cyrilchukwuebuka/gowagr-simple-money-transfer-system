@@ -10,6 +10,11 @@ import { Token } from './entities/token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
+
+/**
+ * Represents a module for handling authentication in the system.
+ * @class
+ */
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Token]),
