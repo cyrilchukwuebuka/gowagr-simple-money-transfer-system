@@ -2,10 +2,10 @@ import { DataSource } from 'typeorm';
 
 export default new DataSource({
   type: 'postgres',
-  host: 'db.ukrpjrlzpkkbdpunnsow.supabase.co',
+  host: '',
   port: 5432,
   username: 'postgres',
-  password: 'Night-out@2023',
+  password: '',
   database: 'postgres',
   entities: ['dist/**/**/*.entity{.ts,.js}'],
   ssl: false,

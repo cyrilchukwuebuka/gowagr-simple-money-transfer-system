@@ -4,11 +4,11 @@ import {
   IsEmpty,
   IsEnum,
   IsString,
-  MinLength
+  MinLength,
 } from 'class-validator';
-import { Gender } from '../entities/auth.entity';
+import { Gender } from '../entities/user.entity';
 
-export class CreateAuthDto {
+export class CreateUserDto {
   @IsString()
   @MinLength(3)
   firstname: string;
@@ -17,8 +17,9 @@ export class CreateAuthDto {
   @MinLength(3)
   lastname: string;
 
-  @IsEmail()
-  email: string;
+  @IsString()
+  @MinLength(3)
+  username: string;
 
   @IsString()
   @MinLength(8)
@@ -30,10 +31,4 @@ export class CreateAuthDto {
   @IsString()
   @MinLength(3)
   country: string;
-
-  @IsDateString()
-  dob: Date;
-
-  @IsEmpty()
-  role: null;
 }
