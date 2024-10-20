@@ -20,6 +20,13 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { Balance } from 'src/transfer/entities/balance.entity';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthResponse } from 'src/auth/type/auth.type';
 
 /**
  * Represents a controller for handling users in the system.
@@ -32,6 +39,7 @@ import { Balance } from 'src/transfer/entities/balance.entity';
  * @method findAll
  * @method findOne
  */
+@ApiTags('users')
 @Controller(users)
 @UseGuards(JwtAuthGuard)
 export class UserController {
@@ -52,6 +60,48 @@ export class UserController {
    * @param {string} userId - The user's ID.
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a user with balance detail by ID.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user information',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get(':id')
   async getUser(@Param('id') userId: string): Promise<User> {
     return await this.userService.getProfile(userId);
@@ -64,6 +114,48 @@ export class UserController {
    * @param {string} username - The user's username.
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a user without balance detail by username.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user information',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided username.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get(':username')
   async getUserByUsername(@Param('username') username: string): Promise<User> {
     return await this.userService.getProfileByUsername(username);
@@ -77,6 +169,51 @@ export class UserController {
    * @param {number} limit - The limit of items per view.
    * @returns {Promise<[User[], number]>} A promise that resolves when users are found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets users without balance detail.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved users information',
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          // items: { $ref: '#/components/schemas/UserDto' },
+        },
+        meta: {
+          type: 'object',
+          properties: {
+            totalCount: { type: 'number', example: 100 },
+            page: { type: 'number', example: 1 },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get()
   async getUsers(
     @Query('page') page: number = 1,
@@ -97,8 +234,38 @@ export class UserController {
    * @param {string} createUserDto.username - The username of the user.
    * @param {string} createUserDto.country - The country of the user.
    *
-   * @returns {Promise<{access_token: string;is_deactivated: boolean;deactivated_at: string;}>} A promise that resolves when the user is found.
-   */
+   * @returns {Promise<AuthResponse>} A promise that resolves when the user is found.
+   */ 
+  @ApiOperation({
+    summary: 'Gets an authenticated user and update user detail.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Successfully created new user',
+    type: AuthResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Post()
   @HttpCode(201)
   @Public()
@@ -123,6 +290,48 @@ export class UserController {
    *
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets an authenticated user and update user detail.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully updated user information',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Put()
   async updateProfile(
     @Req() req: Request & ReqUser,
@@ -138,6 +347,48 @@ export class UserController {
    * @param {Object} req - The request object.
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a user with balance detail by ID.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user information',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get('/profile')
   async getProfile(@Req() req: Request & ReqUser): Promise<User> {
     return await this.userService.getProfile(req.user.id);
@@ -151,30 +402,156 @@ export class UserController {
    * @returns {Promise<Balance>} A promise that resolves when balance is found.
    * @throws {NotFoundException} If the user with the given user ID is not found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a user balance by user ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user balance.',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get('/balance')
   async getBalance(@Req() req: Request & ReqUser): Promise<Balance> {
     return this.userService.getBalance(req.user.id);
   }
 
   /**
-   * Deactivates a user by user ID.
+   * Deactivates a user.
    * @method
    *
    * @param {Object} req - The request object.
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a logged in user and deactivates the user.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully deactivated user',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Patch('/deactivate')
   async deactivateUser(@Req() req: Request & ReqUser): Promise<User> {
     return await this.userService.deactivateUser(req.user.id);
   }
 
   /**
-   * Activates a user by user ID.
+   * Activates a user.
    * @method
    *
    * @param {Object} req - The request object.
    * @returns {Promise<User>} A promise that resolves when the user is found.
    */
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Gets a logged in user and activates the user.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully activated user',
+    type: User,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Patch('/activate')
   async activateUser(@Req() req: Request & ReqUser): Promise<User> {
     return await this.userService.activateUser(req.user.id);

@@ -2,7 +2,7 @@ const configuration = () => ({
   app: {
     name: process.env.APP_NAME,
     version: process.env.APP_VERSION,
-    port: process.env.APP_PORT,
+    port: process.env.APP_PORT || 5000,
   },
   postgres: {
     database: process.env.DATABASE,
@@ -15,8 +15,8 @@ const configuration = () => ({
 });
 
 export const jwt = {
-  secret: process.env.JWT_SECRET,
-  expire: process.env.JWT_EXPIRE,
+  secret: 'averylongjsonwebtokensecret', // process.env.JWT_SECRET,
+  expire: '60d', // process.env.JWT_EXPIRE,
 };
 
 export default configuration;

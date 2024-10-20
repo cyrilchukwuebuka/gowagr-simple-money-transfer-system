@@ -10,8 +10,8 @@ import { AppService } from './app.service';
 import { typeOrmAsyncConfig } from './config/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-// import { EncryptModule } from './encrypt/encrypt.module';
 import { TransferModule } from './transfer/transfer.module';
+import { EncryptModule } from './encrypt/encrypt.module';
 
 /**
  * Represents the entry module in the system.
@@ -34,11 +34,11 @@ import { TransferModule } from './transfer/transfer.module';
     // CacheModule.register({
     //   isGlobal: true,
     // }),
-    // TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
+    TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     AuthModule,
     UserModule,
     TransferModule,
-    // EncryptModule,
+    EncryptModule,
   ],
   controllers: [AppController],
   providers: [
@@ -53,4 +53,5 @@ import { TransferModule } from './transfer/transfer.module';
     // },
   ],
 })
+
 export class AppModule {}

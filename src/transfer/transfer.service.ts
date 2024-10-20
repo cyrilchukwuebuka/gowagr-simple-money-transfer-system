@@ -33,7 +33,7 @@ export class TransferService {
    * @param {DataSource} dataSource - The service for accessing database.
    */
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(Transfer)
     private readonly transferRepository: Repository<Transfer>,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
@@ -57,53 +57,53 @@ export class TransferService {
     user_id: string,
     createTransferDto: CreateTransferDto,
   ): Promise<Transfer> {
-    const queryRunner = this.dataSource.createQueryRunner();
+    // const queryRunner = this.dataSource.createQueryRunner();
     let transfer: Transfer;
 
-    try {
-      const { receiverId, amount, description } = createTransferDto;
+    // try {
+    //   const { receiverId, amount, description } = createTransferDto;
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
+    //   await queryRunner.connect();
+    //   await queryRunner.startTransaction();
 
-      if (amount < 1) {
-        throw new NotAcceptableException(
-          'Amount must be greater than zero (0)',
-        );
-      }
+    //   if (amount < 1) {
+    //     throw new NotAcceptableException(
+    //       'Amount must be greater than zero (0)',
+    //     );
+    //   }
 
-      // user check done in userService class
-      const sender = await this.userService.findOne(user_id);
-      const receiver = await this.userService.findOne(receiverId);
+    //   // user check done in userService class
+    //   const sender = await this.userService.findOne(user_id);
+    //   const receiver = await this.userService.findOne(receiverId);
 
-      if (sender.balance.amount < amount) {
-        throw new NotAcceptableException(
-          'Amount must be less than your balance',
-        );
-      }
+    //   if (sender.balance.amount < amount) {
+    //     throw new NotAcceptableException(
+    //       'Amount must be less than your balance',
+    //     );
+    //   }
 
-      sender.balance.amount = sender.balance.amount - amount;
-      receiver.balance.amount = receiver.balance.amount + amount;
+    //   sender.balance.amount = sender.balance.amount - amount;
+    //   receiver.balance.amount = receiver.balance.amount + amount;
 
-      transfer = new Transfer();
+    //   transfer = new Transfer();
 
-      transfer.amount = amount;
-      transfer.description = description;
-      transfer.sender = sender;
-      transfer.receiver = receiver;
-      transfer.status = PAYMENT_STATUS.SUCCESSFUL;
+    //   transfer.amount = amount;
+    //   transfer.description = description;
+    //   transfer.sender = sender;
+    //   transfer.receiver = receiver;
+    //   transfer.status = PAYMENT_STATUS.SUCCESSFUL;
 
-      await queryRunner.manager.save(sender);
-      await queryRunner.manager.save(receiver);
+    //   await queryRunner.manager.save(sender);
+    //   await queryRunner.manager.save(receiver);
 
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException('Transaction failed');
-      // throw new
-    } finally {
-      await queryRunner.release();
-    }
+    //   await queryRunner.commitTransaction();
+    // } catch (err) {
+    //   await queryRunner.rollbackTransaction();
+    //   throw new BadRequestException('Transaction failed');
+    //   // throw new
+    // } finally {
+    //   await queryRunner.release();
+    // }
 
     return transfer;
   }

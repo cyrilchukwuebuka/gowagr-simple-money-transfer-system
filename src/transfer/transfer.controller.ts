@@ -14,6 +14,7 @@ import { transfers } from 'src/utils/routes';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { TransferService } from './transfer.service';
 import { Transfer } from './entities/transfer.entity';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 /**
  * Represents a controller for handling transfer in the system.
@@ -25,6 +26,8 @@ import { Transfer } from './entities/transfer.entity';
  * @method findAll
  * @method findOne
  */
+@ApiTags('transfer')
+@ApiBearerAuth()
 @Controller(transfers)
 @UseGuards(JwtAuthGuard)
 export class TransferController {
@@ -46,6 +49,47 @@ export class TransferController {
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
    */
+  @ApiOperation({
+    summary: 'Creates a Transfer between sender and receiver.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Successfully created new transfer',
+    type: Transfer,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Post()
   create(
     @Req() req: Request & ReqUser,
@@ -63,6 +107,50 @@ export class TransferController {
    *
    * @returns {Promise<Paginated<Transfer>>} A promise that resolves when the transfers are fetched.
    */
+  @ApiOperation({
+    summary: 'Gets transfers information.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved transfers information',
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          // items: { $ref: '#/components/schemas/UserDto' },
+        },
+        meta: {
+          type: 'object',
+          properties: {
+            totalCount: { type: 'number', example: 100 },
+            page: { type: 'number', example: 1 },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get()
   findAll(
     @Req() req: Request & ReqUser,
@@ -80,8 +168,52 @@ export class TransferController {
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
    */
+  @ApiOperation({
+    summary: 'Gets a transfer detail by ID.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved transfer information',
+    type: Transfer,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No transfer was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Transfer not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
   @Get(':id')
-  findOne(@Req() req: Request & ReqUser, @Param('id') id: string): Promise<Transfer> {
+  findOne(
+    @Req() req: Request & ReqUser,
+    @Param('id') id: string,
+  ): Promise<Transfer> {
     return this.transferService.findOne(req.user.id, id);
   }
 }

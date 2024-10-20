@@ -11,13 +11,16 @@ const localhost = new RegExp('^https?://localhost*(:[0-9]+)?(/.*)?$');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = new Logger('Core Service');
+  const configService = app.get(ConfigService);
+  const appName = configService.get<string>('app.name', 'GoWagr');
+  const port = configService.get<number>('app.port');
+  const logger = new Logger(`${appName} Core Service`);
 
   const config = new DocumentBuilder()
     .setTitle('GoWagr API Documentation')
     .setDescription('A simple API documentation for the GoWagr Service')
     .setVersion('1.0.0')
-    .addTag('GoWagr')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
@@ -30,12 +33,10 @@ async function bootstrap() {
     origin: [localhost],
     optionsSuccessStatus: 204,
   });
-  const configService = app.get(ConfigService);
-  const appName = configService.get<string>('app.name', 'GoWagr');
-  const port = configService.get<number>('app.port', 5000);
   await app.listen(port);
   app.use(helmet());
   app.use(helmet.xssFilter());
-  logger.debug(`${appName} Core service running on: ${await app.getUrl()}`);
+  logger.debug(`${appName} core service running on: ${await app.getUrl()}`);
 }
+
 bootstrap();

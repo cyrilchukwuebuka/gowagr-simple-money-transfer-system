@@ -12,6 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordResponse } from './type/auth.type';
 
 export type ReqUser = {
   user: { id: string };
@@ -160,14 +161,14 @@ export class AuthService {
    * @param {string} changePasswordDto.current_password - The current password of the user.
    * @param {string} changePasswordDto.new_password - The new password of the user.
    *
-   * @returns {Promise<{message: string}>} A promise that resolves when the user is found.
+   * @returns {Promise<ChangePasswordResponse>} A promise that resolves when the user is found.
    * @throws {NotFoundException} If the user acount is not found.
    * @throws {UnauthorizedException} If the user credential is invalid.
    */
   async changePassword(
     user_id: string,
     changePasswordDto: ChangePasswordDto,
-  ): Promise<{ message: string }> {
+  ): Promise<ChangePasswordResponse> {
     const credentials = await this.userRepository.findOneBy({ id: user_id });
 
     if (!credentials) throw new NotFoundException('Account not found');

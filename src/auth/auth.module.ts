@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { Token } from './entities/token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { UserService } from 'src/user/user.service';
 
 
 /**
@@ -22,7 +23,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     JwtModule.register(jwt),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, UserService],
   exports: [AuthService],
 })
 export class AuthModule {}
