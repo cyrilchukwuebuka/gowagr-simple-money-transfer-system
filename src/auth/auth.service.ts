@@ -22,7 +22,8 @@ export type ReqUser = {
  * @class
  *
  * @field userRepository
- * @field userRepository
+ * @field jwtService
+ * @field userService
  *
  * @method login
  * @method signup

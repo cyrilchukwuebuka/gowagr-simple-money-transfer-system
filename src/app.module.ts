@@ -13,6 +13,10 @@ import { UserModule } from './user/user.module';
 // import { EncryptModule } from './encrypt/encrypt.module';
 import { TransferModule } from './transfer/transfer.module';
 
+/**
+ * Represents the entry module in the system.
+ * @class
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({
