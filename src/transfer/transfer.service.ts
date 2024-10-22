@@ -55,7 +55,7 @@ export class TransferService {
    * @param {string} user_id - The user's ID.
    * @param {CreateTransferDto} createTransferDto - The transfer's create detail.
    * @param {string} updateProfileDto.amount - The amount of the transaction.
-   * @param {string} updateProfileDto.receiverId - The receiverId of the transaction.
+   * @param {string} updateProfileDto.username - The username of the transaction.
    * @param {string} updateProfileDto.description - The description of the transaction.
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
@@ -70,7 +70,7 @@ export class TransferService {
     let transfer: Transfer;
 
     try {
-      const { receiverId, amount, description } = createTransferDto;
+      const { username, amount, description } = createTransferDto;
 
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -83,7 +83,7 @@ export class TransferService {
 
       // user check done in userService class
       const sender = await this.userService.findOne(user_id);
-      const receiver = await this.userService.findOne(receiverId);
+      const receiver = await this.userService.findByUsername(username);
 
       if (sender.balance.amount < amount) {
         throw new NotAcceptableException('Insufficient funds');
@@ -225,7 +225,7 @@ export class TransferService {
       .where('transfer.id = :id', { id: transfer_id })
       .getOne();
     // .andWhere('sender.id = :senderId', { senderId: user_id })
-    // .andWhere('receiver.id = :receiverId', { receiverId: user_id })
+    // .andWhere('receiver.id = :username', { username: user_id })
 
     if (!transfer) throw new NotFoundException('Transfer not found');
 

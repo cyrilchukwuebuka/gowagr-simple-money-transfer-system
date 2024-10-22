@@ -8,15 +8,14 @@ export class CreateTransferDto {
   /**
    * The unique identifier of the user
    * @type {string}
-   * @example "c1f74b35-d99c-4c49-9a2d-54a82440982e"
+   * @example "johndoe"
    */
   @IsUUID()
   @ApiProperty({
     description: 'The unique identifier of the receiving user',
-    format: 'uuid',
-    example: 'c1f74b35-d99c-4c49-9a2d-54a82440982e',
+    example: 'johndoe',
   })
-  receiverId: string;
+  username: string;
 
   /**
    * The amount in the transfer context

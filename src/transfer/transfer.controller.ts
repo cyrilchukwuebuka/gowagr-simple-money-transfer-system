@@ -47,7 +47,7 @@ export class TransferController {
    * @param {Object} req - The request object.
    * @param {CreateTransferDto} createTransferDto - The transfer's create detail.
    * @param {string} updateProfileDto.amount - The amount of the transaction.
-   * @param {string} updateProfileDto.receiverId - The receiverId of the transaction.
+   * @param {string} updateProfileDto.username - The receiver username of the transaction.
    * @param {string} updateProfileDto.description - The description of the transaction.
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.

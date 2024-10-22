@@ -137,7 +137,7 @@ describe('TransferController', () => {
   it('should create a user', async () => {
     const transfer: CreateTransferDto = {
       amount: 100,
-      receiverId: '2',
+      username: 'ebukadoe4',
       description: 'test',
     };
 
