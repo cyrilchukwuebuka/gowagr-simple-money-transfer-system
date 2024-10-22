@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   CreateDateColumn,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -18,6 +19,7 @@ export class BaseTable {
     description: 'The unique identifier of the user',
     example: 'd69b5a20-02e6-11eb-adc1-0242ac120002',
   })
+  @Index({ unique: true })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -30,6 +32,7 @@ export class BaseTable {
     description: 'The creation timestamp of the record',
     example: '2024-10-04T12:34:56Z',
   })
+  @Index({ unique: true })
   @CreateDateColumn()
   created_at: Date;
 

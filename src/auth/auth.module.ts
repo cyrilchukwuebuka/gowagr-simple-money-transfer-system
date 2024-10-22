@@ -10,6 +10,7 @@ import { Token } from './entities/token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UserService } from 'src/user/user.service';
+import { Balance } from 'src/transfer/entities/balance.entity';
 
 
 /**
@@ -18,12 +19,17 @@ import { UserService } from 'src/user/user.service';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Token]),
+    TypeOrmModule.forFeature([User, Token, Balance]),
     PassportModule,
-    JwtModule.register(jwt),
+    JwtModule.register({
+      secret: 'averylongjsonwebtokensecret',
+      signOptions: {
+        expiresIn: '60d',
+      },
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, UserService],
+  providers: [UserService, AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

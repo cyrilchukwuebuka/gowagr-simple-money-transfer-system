@@ -15,8 +15,15 @@ const configuration = () => ({
 });
 
 export const jwt = {
-  secret: 'averylongjsonwebtokensecret', // process.env.JWT_SECRET,
-  expire: '60d', // process.env.JWT_EXPIRE,
+  secret: 'averylongjsonwebtokensecret',
+  signOptions: {
+    expiresIn: '60d',
+  },
 };
+
+// export const jwt = {
+//   secret: 'averylongjsonwebtokensecret', // process.env.JWT_SECRET,
+//   expire: '60d', // process.env.JWT_EXPIRE,
+// };
 
 export default configuration;

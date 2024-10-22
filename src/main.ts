@@ -6,6 +6,8 @@ import { AppModule } from './app.module';
 import { errorHandler } from './middleware/error';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const localhost = new RegExp('^https?://localhost*(:[0-9]+)?(/.*)?$');
 

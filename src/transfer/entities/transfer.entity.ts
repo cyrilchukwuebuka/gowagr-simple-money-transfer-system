@@ -1,7 +1,7 @@
 import { IsEnum } from 'class-validator';
 import { BaseTable } from 'src/base/base.table';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, VersionColumn } from 'typeorm';
 
 export enum PAYMENT_STATUS {
   PENDING = 'pending',
@@ -12,6 +12,7 @@ export enum PAYMENT_STATUS {
 @Entity({
   name: 'transfer',
 })
+@Index(['amount', 'sender'])
 export class Transfer extends BaseTable {
   @ManyToOne(() => User, (user) => user.sentTransfers, { eager: true })
   sender: User;
@@ -32,4 +33,7 @@ export class Transfer extends BaseTable {
   })
   @IsEnum(PAYMENT_STATUS)
   status: PAYMENT_STATUS;
+
+  @VersionColumn()
+  version: number;
 }

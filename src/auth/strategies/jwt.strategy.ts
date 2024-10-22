@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwt } from 'src/config/env.configuration';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 /**
  * Represents a strategy for handling JWT Passport Strategy in the system.
@@ -10,10 +12,11 @@ import { jwt } from 'src/config/env.configuration';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    // console.log('jwt.secret', jwt.secret);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwt.secret,
+      secretOrKey: 'averylongjsonwebtokensecret', //jwt.secret,
     });
   }
 

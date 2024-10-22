@@ -13,9 +13,11 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
-  OneToOne
+  OneToOne,
+  VersionColumn
 } from 'typeorm';
 
 export enum Gender {
@@ -27,6 +29,7 @@ export enum Gender {
 @Entity({
   name: 'user',
 })
+@Index(['firstname', 'lastname', 'username'])
 export class User extends BaseTable {
   @Column({ type: 'varchar', default: null })
   @IsString()
@@ -65,7 +68,7 @@ export class User extends BaseTable {
   @IsString()
   country: string;
 
-  @OneToOne(() => Balance, (balance) => balance.user)
+  @OneToOne(() => Balance, (balance) => balance.user, { cascade: true })
   @JoinColumn()
   balance: Balance;
 
@@ -74,6 +77,9 @@ export class User extends BaseTable {
 
   @OneToMany(() => Transfer, (transfer) => transfer.receiver)
   receivedTransfers: Transfer[];
+
+  @VersionColumn()
+  version: number;
 
   async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(12);

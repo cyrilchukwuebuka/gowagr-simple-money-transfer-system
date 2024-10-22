@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { CreateTransferDto } from './dto/create-transfer.dto';
 import { TransferService } from './transfer.service';
 import { Transfer } from './entities/transfer.entity';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { DepositDto } from './dto/deposit.dto';
 
 /**
  * Represents a controller for handling transfer in the system.
@@ -96,6 +98,66 @@ export class TransferController {
     @Body() createTransferDto: CreateTransferDto,
   ): Promise<Transfer> {
     return this.transferService.create(req.user.id, createTransferDto);
+  }
+
+  /**
+   * Deposits money into an authenticated user account.
+   * @method
+   *
+   * @param {Object} req - The request object.
+   * @param {DepositDto} depositDto - The deposit detail.
+   * @param {string} depositDto.amount - The amount of the transaction.
+   * @param {string} depositDto.description - The description of the transaction.
+   *
+   * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
+   */
+  @ApiOperation({
+    summary: 'Deposits money into an authenticated user account.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Successfully created new deposit',
+    type: Transfer,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials. Please try again',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. No user was found with the provided ID.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error.',
+    schema: {
+      example: {
+        statusCode: 500,
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+      },
+    },
+  })
+  @Put()
+  deposit(
+    @Req() req: Request & ReqUser,
+    @Body() depositDto: DepositDto,
+  ): Promise<Transfer> {
+    return this.transferService.deposit(req.user.id, depositDto);
   }
 
   /**

@@ -9,10 +9,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Gender, User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordResponse } from './type/auth.type';
+import { Balance } from 'src/transfer/entities/balance.entity';
 
 export type ReqUser = {
   user: { id: string };
@@ -36,13 +37,18 @@ export class AuthService {
   /**
    * Creates an instance of UserService.
    * @param {Repository<User>} userRepository - The repository for accessing user data.
+   * @param {Repository<Balance>} balanceRepository - The repository for accessing balance data.
    * @param {JwtService} jwtService - The service for accessing jwt features.
    * @param {UserService} userService - The service for accessing user features.
+   * @param {DataSource} dataSource - The service for accessing database.
    */
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Balance)
+    private readonly balanceRepository: Repository<Balance>,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -97,31 +103,47 @@ export class AuthService {
     const { password, firstname, lastname, country, username, gender } =
       signupDto;
 
-    const auth = await this.userService.findByUsername(username);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
-    if (auth)
-      throw new BadRequestException(
-        'This username already exist. Please login',
-      );
+    try {
+      const balance = new Balance();
+      balance.amount = 0;
 
-    const newAuth = this.userRepository.create({
-      password,
-      firstname,
-      lastname,
-      gender,
-      country,
-      username,
-    });
+      const auth = await this.userService.findByUsername(username);
 
-    await this.userRepository.save(newAuth);
+      if (auth)
+        throw new BadRequestException(
+          'This username already exist. Please login',
+        );
 
-    const payload = { sub: newAuth.id };
+      const newAuth = new User()
+      newAuth.username = username
+      newAuth.firstname = firstname
+      newAuth.lastname = lastname
+      newAuth.gender = gender
+      newAuth.country = country
+      newAuth.password = password
+      newAuth.balance = balance
 
-    return {
-      access_token: this.jwtService.sign(payload),
-      is_deactivated: newAuth.is_deactivated,
-      deactivated_at: newAuth.deactivated_at,
-    };
+      await queryRunner.manager.save(newAuth);
+      await queryRunner.manager.save(balance);
+
+      await queryRunner.commitTransaction();
+
+      const payload = { sub: newAuth.id };
+
+      return {
+        access_token: this.jwtService.sign(payload),
+        is_deactivated: newAuth.is_deactivated,
+        deactivated_at: newAuth.deactivated_at,
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('User creation failed');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   /**

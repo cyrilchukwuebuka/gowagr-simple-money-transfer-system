@@ -27,6 +27,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthResponse } from 'src/auth/type/auth.type';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 
 /**
  * Represents a controller for handling users in the system.
@@ -102,7 +103,7 @@ export class UserController {
       },
     },
   })
-  @Get(':id')
+  @Get('/:id/profile')
   async getUser(@Param('id') userId: string): Promise<User> {
     return await this.userService.getProfile(userId);
   }
@@ -156,8 +157,9 @@ export class UserController {
       },
     },
   })
-  @Get(':username')
-  async getUserByUsername(@Param('username') username: string): Promise<User> {
+  @Get('/username')
+  async getUserByUsername(@Query('username') username: string): Promise<User> {
+    console.log('username', username);
     return await this.userService.getProfileByUsername(username);
   }
 
@@ -220,61 +222,6 @@ export class UserController {
     @Query('limit') limit: number = 10,
   ): Promise<[User[], number]> {
     return await this.userService.getUsers(page, limit);
-  }
-
-  /**
-   * creates a new user profile.
-   * @method
-   *
-   * @param {CreateUserDto} createUserDto - The user's create detail.
-   * @param {string} createUserDto.firstname - The firstname of the user.
-   * @param {string} createUserDto.lastname - The lastname of the user.
-   * @param {string} createUserDto.password - The password of the user.
-   * @param {Gender} createUserDto.gender - The gender of the user.
-   * @param {string} createUserDto.username - The username of the user.
-   * @param {string} createUserDto.country - The country of the user.
-   *
-   * @returns {Promise<AuthResponse>} A promise that resolves when the user is found.
-   */ 
-  @ApiOperation({
-    summary: 'Gets an authenticated user and update user detail.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Successfully created new user',
-    type: AuthResponse,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid credentials. Please try again',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: 'Invalid credentials. Please try again',
-        error: 'Bad Request',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error.',
-    schema: {
-      example: {
-        statusCode: 500,
-        message: 'Internal Server Error',
-        error: 'Internal Server Error',
-      },
-    },
-  })
-  @Post()
-  @HttpCode(201)
-  @Public()
-  create(@Body() createUserDto: CreateUserDto): Promise<{
-    access_token: string;
-    is_deactivated: boolean;
-    deactivated_at: string;
-  }> {
-    return this.authService.signup(createUserDto);
   }
 
   /**
@@ -341,7 +288,7 @@ export class UserController {
   }
 
   /**
-   * Gets a user with balance detail by ID.
+   * Gets authenticated user with balance detail by ID.
    * @method
    *
    * @param {Object} req - The request object.

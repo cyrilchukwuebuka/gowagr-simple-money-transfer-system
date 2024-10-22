@@ -5,12 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FilterOperator, PaginateQuery, Paginated, paginate } from 'nestjs-paginate';
+import {
+  FilterOperator,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { PAYMENT_STATUS, Transfer } from './entities/transfer.entity';
+import { DepositDto } from './dto/deposit.dto';
 
 /**
  * Represents a service for handling transactions in the system.
@@ -57,53 +63,133 @@ export class TransferService {
     user_id: string,
     createTransferDto: CreateTransferDto,
   ): Promise<Transfer> {
-    // const queryRunner = this.dataSource.createQueryRunner();
+    //   async transferFunds(fromUserId: string, toUserId: string, amount: number): Promise<void> {
+    //   await this.userRepository.manager.transaction(async (transactionalEntityManager) => {
+    //     // Lock both users to avoid race conditions
+    //     const fromUser = await transactionalEntityManager.findOne(User, fromUserId, {
+    //       lock: { mode: 'pessimistic_write' },  // Lock the user sending funds
+    //     });
+
+    //     const toUser = await transactionalEntityManager.findOne(User, toUserId, {
+    //       lock: { mode: 'pessimistic_write' },  // Lock the user receiving funds
+    //     });
+
+    //     if (!fromUser || !toUser) {
+    //       throw new Error('User not found');
+    //     }
+
+    //     if (fromUser.balance < amount) {
+    //       throw new Error('Insufficient funds');
+    //     }
+
+    //     // Perform the transfer
+    //     fromUser.balance -= amount;
+    //     toUser.balance += amount;
+
+    //     // Save both users
+    //     await transactionalEntityManager.save(fromUser);
+    //     await transactionalEntityManager.save(toUser);
+    //   });
+    // }
+
+    const queryRunner = this.dataSource.createQueryRunner();
     let transfer: Transfer;
 
-    // try {
-    //   const { receiverId, amount, description } = createTransferDto;
+    try {
+      const { receiverId, amount, description } = createTransferDto;
 
-    //   await queryRunner.connect();
-    //   await queryRunner.startTransaction();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-    //   if (amount < 1) {
-    //     throw new NotAcceptableException(
-    //       'Amount must be greater than zero (0)',
-    //     );
-    //   }
+      if (amount < 1) {
+        throw new NotAcceptableException(
+          'Amount must be greater than zero (0)',
+        );
+      }
 
-    //   // user check done in userService class
-    //   const sender = await this.userService.findOne(user_id);
-    //   const receiver = await this.userService.findOne(receiverId);
+      // user check done in userService class
+      const sender = await this.userService.findOne(user_id);
+      const receiver = await this.userService.findOne(receiverId);
 
-    //   if (sender.balance.amount < amount) {
-    //     throw new NotAcceptableException(
-    //       'Amount must be less than your balance',
-    //     );
-    //   }
+      if (sender.balance.amount < amount) {
+        throw new NotAcceptableException('Insufficient funds');
+      }
 
-    //   sender.balance.amount = sender.balance.amount - amount;
-    //   receiver.balance.amount = receiver.balance.amount + amount;
+      sender.balance.amount = parseFloat(sender.balance.amount + '') - amount;
+      receiver.balance.amount =
+        parseFloat(receiver.balance.amount + '') + amount;
 
-    //   transfer = new Transfer();
+      transfer = new Transfer();
+      transfer.amount = amount;
+      transfer.description = description;
+      transfer.sender = sender;
+      transfer.receiver = receiver;
+      transfer.status = PAYMENT_STATUS.SUCCESSFUL;
 
-    //   transfer.amount = amount;
-    //   transfer.description = description;
-    //   transfer.sender = sender;
-    //   transfer.receiver = receiver;
-    //   transfer.status = PAYMENT_STATUS.SUCCESSFUL;
+      await queryRunner.manager.save(sender);
+      await queryRunner.manager.save(receiver);
 
-    //   await queryRunner.manager.save(sender);
-    //   await queryRunner.manager.save(receiver);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Transaction failed');
+    } finally {
+      await queryRunner.release();
+    }
 
-    //   await queryRunner.commitTransaction();
-    // } catch (err) {
-    //   await queryRunner.rollbackTransaction();
-    //   throw new BadRequestException('Transaction failed');
-    //   // throw new
-    // } finally {
-    //   await queryRunner.release();
-    // }
+    return transfer;
+  }
+
+  /**
+   * Deposits money into an authenticated user account.
+   * @method
+   *
+   * @param {string} user_id - The user's ID.
+   * @param {DepositDto} depositDto - The deposit detail.
+   * @param {string} depositDto.amount - The amount of the transaction.
+   * @param {string} depositDto.description - The description of the transaction.
+   *
+   * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
+   * @throws {NotAcceptableException} If the user sends an amount below digit one (1) or below the sender's current balance.
+   * @throws {BadRequestException} If the transaction fails.
+   */
+  async deposit(user_id: string, depositDto: DepositDto): Promise<Transfer> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    let transfer: Transfer;
+
+    try {
+      const { amount, description } = depositDto;
+
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      if (amount < 1) {
+        throw new NotAcceptableException(
+          'Amount must be greater than zero (0)',
+        );
+      }
+
+      // user check done in userService class
+      const sender = await this.userService.findOne(user_id);
+
+      sender.balance.amount = parseFloat(sender.balance.amount + '') + amount;
+
+      transfer = new Transfer();
+      transfer.amount = amount;
+      transfer.description = description;
+      transfer.sender = sender;
+      transfer.status = PAYMENT_STATUS.SUCCESSFUL;
+
+      await queryRunner.manager.save(sender);
+      await queryRunner.manager.save(transfer);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException('Transaction failed');
+    } finally {
+      await queryRunner.release();
+    }
 
     return transfer;
   }
@@ -123,8 +209,8 @@ export class TransferService {
   ): Promise<Paginated<Transfer>> {
     const queryBuilder = this.transferRepository
       .createQueryBuilder('transfer')
-      .leftJoin('transfer.sender', 'sender')
-      .leftJoin('transfer.receiver', 'receiver')
+      .leftJoinAndSelect('transfer.sender', 'sender')
+      .leftJoinAndSelect('transfer.receiver', 'receiver')
       .where('sender.id = :senderId', { senderId: user_id })
       .andWhere('receiver.id = :receiverId', { receiverId: user_id });
 
@@ -156,15 +242,15 @@ export class TransferService {
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
    */
-  async findOne(user_id: string, transfer_id: string): Promise<Transfer> {
+  async findOne(user_id: string, transfer_id: string): Promise<Transfer> {git 
     const transfer = await this.transferRepository
       .createQueryBuilder('transfer')
-      .leftJoin('transfer.sender', 'sender')
-      .leftJoin('transfer.receiver', 'receiver')
+      .leftJoinAndSelect('transfer.sender', 'sender')
+      .leftJoinAndSelect('transfer.receiver', 'receiver')
       .where('transfer.id = :id', { id: transfer_id })
-      .andWhere('sender.id = :senderId', { senderId: user_id })
-      .andWhere('receiver.id = :receiverId', { receiverId: user_id })
       .getOne();
+      // .andWhere('sender.id = :senderId', { senderId: user_id })
+      // .andWhere('receiver.id = :receiverId', { receiverId: user_id })
 
     if (!transfer) throw new NotFoundException('Transfer not found');
 
