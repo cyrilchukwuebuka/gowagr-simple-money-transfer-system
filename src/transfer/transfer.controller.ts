@@ -17,6 +17,7 @@ import { TransferService } from './transfer.service';
 import { Transfer } from './entities/transfer.entity';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DepositDto } from './dto/deposit.dto';
+import { PaginationQueryDto } from 'src/base/pagination-query.dto';
 
 /**
  * Represents a controller for handling transfer in the system.
@@ -216,9 +217,9 @@ export class TransferController {
   @Get()
   findAll(
     @Req() req: Request & ReqUser,
-    @Paginate() query: PaginateQuery,
+    @Paginate() query: PaginationQueryDto,
   ): Promise<Paginated<Transfer>> {
-    return this.transferService.findAll(req.user.id, query);
+    return this.transferService.findAll(req.user.id, query as any);
   }
 
   /**

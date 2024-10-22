@@ -21,9 +21,4 @@ export const jwt = {
   },
 };
 
-// export const jwt = {
-//   secret: 'averylongjsonwebtokensecret', // process.env.JWT_SECRET,
-//   expire: '60d', // process.env.JWT_EXPIRE,
-// };
-
 export default configuration;

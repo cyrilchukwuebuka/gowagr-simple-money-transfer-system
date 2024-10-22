@@ -10,7 +10,7 @@ import { Token } from './entities/token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UserService } from 'src/user/user.service';
-import { Balance } from 'src/transfer/entities/balance.entity';
+import { Balance } from 'src/balance/entities/balance.entity';
 
 
 /**
@@ -21,12 +21,7 @@ import { Balance } from 'src/transfer/entities/balance.entity';
   imports: [
     TypeOrmModule.forFeature([User, Token, Balance]),
     PassportModule,
-    JwtModule.register({
-      secret: 'averylongjsonwebtokensecret',
-      signOptions: {
-        expiresIn: '60d',
-      },
-    }),
+    JwtModule.register(jwt),
   ],
   controllers: [AuthController],
   providers: [UserService, AuthService, LocalStrategy, JwtStrategy],

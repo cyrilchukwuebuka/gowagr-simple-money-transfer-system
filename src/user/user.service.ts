@@ -6,10 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { differenceInDays } from 'date-fns';
 import { assign } from 'lodash';
-import { Balance } from 'src/transfer/entities/balance.entity';
+import { Balance } from 'src/balance/entities/balance.entity';
 import { Repository } from 'typeorm';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { User } from './entities/user.entity';
+import { BalanceService } from 'src/balance/balance.service';
 
 /**
  * Represents a service for handling users in the system.
@@ -35,6 +36,7 @@ export class UserService {
    */
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    // private readonly balanceService: BalanceService
   ) {}
 
   /**
@@ -79,10 +81,8 @@ export class UserService {
    * @returns {Promise<Balance>} A promise that resolves when balance is found.
    * @throws {NotFoundException} If the user with the given user ID is not found.
    */
-  async getBalance(user_id: string): Promise<Balance> {
-    const user = await this.findOne(user_id);
-
-    return user.balance;
+  async getBalance(user_id: string): Promise<any> {
+    // return await this.balanceService.getUserBalance(user_id)
   }
 
   /**

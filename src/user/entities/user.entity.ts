@@ -7,7 +7,7 @@ import {
   IsString
 } from 'class-validator';
 import { BaseTable } from 'src/base/base.table';
-import { Balance } from 'src/transfer/entities/balance.entity';
+import { Balance } from 'src/balance/entities/balance.entity';
 import { Transfer } from 'src/transfer/entities/transfer.entity';
 import {
   BeforeInsert,

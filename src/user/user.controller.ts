@@ -2,32 +2,27 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Param,
   Patch,
-  Post,
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import { AuthService, ReqUser } from 'src/auth/auth.service';
-import { Public } from 'src/auth/decorators/public.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { users } from 'src/utils/routes';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UserService } from './user.service';
-import { User } from './entities/user.entity';
-import { Balance } from 'src/transfer/entities/balance.entity';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthResponse } from 'src/auth/type/auth.type';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
+import { AuthService, ReqUser } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Balance } from 'src/balance/entities/balance.entity';
+import { users } from 'src/utils/routes';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { User } from './entities/user.entity';
+import { UserService } from './user.service';
+import { BalanceService } from 'src/balance/balance.service';
 
 /**
  * Represents a controller for handling users in the system.
@@ -48,10 +43,12 @@ export class UserController {
    * Creates an instance of TransferController.
    * @param {UserService} userService - The service for accessing user functionalities.
    * @param {AuthService} authService - The service for accessing auth functionalities.
+   * @param {BalanceService} authService - The service for accessing balance functionalities.
    */
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
+    private readonly balanceService: BalanceService,
   ) {}
 
   /**
@@ -159,7 +156,6 @@ export class UserController {
   })
   @Get('/username')
   async getUserByUsername(@Query('username') username: string): Promise<User> {
-    console.log('username', username);
     return await this.userService.getProfileByUsername(username);
   }
 
@@ -391,9 +387,10 @@ export class UserController {
       },
     },
   })
-  @Get('/balance')
+  @Get('/balance') 
   async getBalance(@Req() req: Request & ReqUser): Promise<Balance> {
-    return this.userService.getBalance(req.user.id);
+    // return this.userService.getBalance(req.user.id);
+    return await this.balanceService.getUserBalance(req.user.id);
   }
 
   /**

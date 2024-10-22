@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TransferModule } from './transfer/transfer.module';
 import { EncryptModule } from './encrypt/encrypt.module';
+import { BalanceModule } from './balance/balance.module';
 
 /**
  * Represents the entry module in the system.
@@ -39,6 +40,7 @@ import { EncryptModule } from './encrypt/encrypt.module';
     UserModule,
     TransferModule,
     EncryptModule,
+    BalanceModule,
   ],
   controllers: [AppController],
   providers: [

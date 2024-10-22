@@ -56,9 +56,15 @@ To be able to setup the project locally, you need to have the following installe
   ```
   
 ## Running the API
-* Start the server:
+* Start the server on development:
   ```
   npm run start:dev
+  ```
+* Start the server on test:
+  ```
+  npm run test:watch
+  or
+  npm run test
   ```
 * The API will be running at http://localhost:5000. eg. PORT=5000
 

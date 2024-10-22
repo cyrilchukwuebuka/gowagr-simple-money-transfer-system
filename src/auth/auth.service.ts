@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Balance } from 'src/balance/entities/balance.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { Gender, User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -13,7 +14,6 @@ import { DataSource, Repository } from 'typeorm';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordResponse } from './type/auth.type';
-import { Balance } from 'src/transfer/entities/balance.entity';
 
 export type ReqUser = {
   user: { id: string };
@@ -37,15 +37,12 @@ export class AuthService {
   /**
    * Creates an instance of UserService.
    * @param {Repository<User>} userRepository - The repository for accessing user data.
-   * @param {Repository<Balance>} balanceRepository - The repository for accessing balance data.
    * @param {JwtService} jwtService - The service for accessing jwt features.
    * @param {UserService} userService - The service for accessing user features.
    * @param {DataSource} dataSource - The service for accessing database.
    */
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(Balance)
-    private readonly balanceRepository: Repository<Balance>,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly dataSource: DataSource,

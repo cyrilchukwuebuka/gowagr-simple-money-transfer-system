@@ -15,8 +15,9 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { PAYMENT_STATUS, Transfer } from './entities/transfer.entity';
 import { DepositDto } from './dto/deposit.dto';
+import { PAYMENT_STATUS, Transfer } from './entities/transfer.entity';
+import { BalanceService } from 'src/balance/balance.service';
 
 /**
  * Represents a service for handling transactions in the system.
@@ -36,12 +37,14 @@ export class TransferService {
    * Creates an instance of TransferService.
    * @param {Repository<User>} transferRepository - The repository for accessing transfer data.
    * @param {UserService} userService - The service for accessing user functionalities.
+   * @param {BalanceService} userService - The service for accessing balance functionalities.
    * @param {DataSource} dataSource - The service for accessing database.
    */
   constructor(
     @InjectRepository(Transfer)
     private readonly transferRepository: Repository<Transfer>,
     private readonly userService: UserService,
+    private readonly balanceService: BalanceService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -63,35 +66,6 @@ export class TransferService {
     user_id: string,
     createTransferDto: CreateTransferDto,
   ): Promise<Transfer> {
-    //   async transferFunds(fromUserId: string, toUserId: string, amount: number): Promise<void> {
-    //   await this.userRepository.manager.transaction(async (transactionalEntityManager) => {
-    //     // Lock both users to avoid race conditions
-    //     const fromUser = await transactionalEntityManager.findOne(User, fromUserId, {
-    //       lock: { mode: 'pessimistic_write' },  // Lock the user sending funds
-    //     });
-
-    //     const toUser = await transactionalEntityManager.findOne(User, toUserId, {
-    //       lock: { mode: 'pessimistic_write' },  // Lock the user receiving funds
-    //     });
-
-    //     if (!fromUser || !toUser) {
-    //       throw new Error('User not found');
-    //     }
-
-    //     if (fromUser.balance < amount) {
-    //       throw new Error('Insufficient funds');
-    //     }
-
-    //     // Perform the transfer
-    //     fromUser.balance -= amount;
-    //     toUser.balance += amount;
-
-    //     // Save both users
-    //     await transactionalEntityManager.save(fromUser);
-    //     await transactionalEntityManager.save(toUser);
-    //   });
-    // }
-
     const queryRunner = this.dataSource.createQueryRunner();
     let transfer: Transfer;
 
@@ -116,6 +90,7 @@ export class TransferService {
       }
 
       sender.balance.amount = parseFloat(sender.balance.amount + '') - amount;
+      this.balanceService.updateUserBalance(user_id, sender.balance);
       receiver.balance.amount =
         parseFloat(receiver.balance.amount + '') + amount;
 
@@ -171,8 +146,8 @@ export class TransferService {
 
       // user check done in userService class
       const sender = await this.userService.findOne(user_id);
-
       sender.balance.amount = parseFloat(sender.balance.amount + '') + amount;
+      this.balanceService.updateUserBalance(user_id, sender.balance);
 
       transfer = new Transfer();
       transfer.amount = amount;
@@ -211,8 +186,8 @@ export class TransferService {
       .createQueryBuilder('transfer')
       .leftJoinAndSelect('transfer.sender', 'sender')
       .leftJoinAndSelect('transfer.receiver', 'receiver')
-      .where('sender.id = :senderId', { senderId: user_id })
-      .andWhere('receiver.id = :receiverId', { receiverId: user_id });
+      .where('sender.id = :userId', { userId: user_id })
+      .orWhere('receiver.id = :userId', { userId: user_id });
 
     return await paginate(query, queryBuilder, {
       sortableColumns: ['created_at'],
@@ -226,9 +201,9 @@ export class TransferService {
         'receiver.lastname',
       ],
       filterableColumns: {
-        'receiver.firstname': [FilterOperator.CONTAINS],
-        'receiver.lastname': [FilterOperator.CONTAINS],
-        description: [FilterOperator.CONTAINS],
+        // 'receiver.firstname': [FilterOperator.CONTAINS],
+        // 'receiver.lastname': [FilterOperator.CONTAINS],
+        // description: [FilterOperator.CONTAINS],
       },
     });
   }
@@ -242,15 +217,15 @@ export class TransferService {
    *
    * @returns {Promise<Transfer>} A promise that resolves when the transfer is completed.
    */
-  async findOne(user_id: string, transfer_id: string): Promise<Transfer> {git 
+  async findOne(user_id: string, transfer_id: string): Promise<Transfer> {
     const transfer = await this.transferRepository
       .createQueryBuilder('transfer')
       .leftJoinAndSelect('transfer.sender', 'sender')
       .leftJoinAndSelect('transfer.receiver', 'receiver')
       .where('transfer.id = :id', { id: transfer_id })
       .getOne();
-      // .andWhere('sender.id = :senderId', { senderId: user_id })
-      // .andWhere('receiver.id = :receiverId', { receiverId: user_id })
+    // .andWhere('sender.id = :senderId', { senderId: user_id })
+    // .andWhere('receiver.id = :receiverId', { receiverId: user_id })
 
     if (!transfer) throw new NotFoundException('Transfer not found');
 

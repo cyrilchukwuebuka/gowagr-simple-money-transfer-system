@@ -17,6 +17,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
  * @field authService
  *
  * @method login
+ * @method create
  * @method changePassword
  */
 
