@@ -38,7 +38,7 @@ To be able to setup the project locally, you need to have the following installe
 ## INSTALLATION
 * Clone the repository:
   ```
-  git clone https://github.com/your-username/gowagr-simple-money-transfer-system.git
+  git clone https://github.com/cyrilchukwuebuka/gowagr-simple-money-transfer-system.git
   cd gowagr-simple-money-transfer-system
   ```
 * Install dependencies:
