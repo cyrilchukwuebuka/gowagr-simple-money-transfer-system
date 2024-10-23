@@ -6,18 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  FilterOperator,
   PaginateQuery,
   Paginated,
-  paginate,
+  paginate
 } from 'nestjs-paginate';
+import { BalanceService } from 'src/balance/balance.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { DepositDto } from './dto/deposit.dto';
 import { PAYMENT_STATUS, Transfer } from './entities/transfer.entity';
-import { BalanceService } from 'src/balance/balance.service';
 
 /**
  * Represents a service for handling transactions in the system.
@@ -82,8 +81,8 @@ export class TransferService {
       }
 
       // user check done in userService class
-      const sender = await this.userService.findOne(user_id);
-      const receiver = await this.userService.findByUsername(username);
+      const sender = await this.userService.findOne(user_id, true);
+      const receiver = await this.userService.findByUsername(username, true);
 
       if (sender.balance.amount < amount) {
         throw new NotAcceptableException('Insufficient funds');
