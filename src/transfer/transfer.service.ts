@@ -81,8 +81,8 @@ export class TransferService {
       }
 
       // user check done in userService class
-      const sender = await this.userService.findOne(user_id, true);
-      const receiver = await this.userService.findByUsername(username, true);
+      const sender = await this.userService.getProfile(user_id);
+      const receiver = await this.userService.getProfileByUsername(username);
 
       if (sender.balance.amount < amount) {
         throw new NotAcceptableException('Insufficient funds');
@@ -144,7 +144,7 @@ export class TransferService {
       }
 
       // user check done in userService class
-      const sender = await this.userService.findOne(user_id);
+      const sender = await this.userService.getProfile(user_id);
       sender.balance.amount = parseFloat(sender.balance.amount + '') + amount;
       this.balanceService.updateUserBalance(user_id, sender.balance);
 

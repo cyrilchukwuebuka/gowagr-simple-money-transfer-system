@@ -54,7 +54,7 @@ export class BalanceService {
       return cached.balance;
     }
 
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.getProfile(userId);
 
     if (!user || !user.balance) {
       throw new NotFoundException(
@@ -79,7 +79,7 @@ export class BalanceService {
    * @throws {NotFoundException} If the user with the given user ID is not found.
    */
   async updateUserBalance(userId: string, balance: Balance): Promise<void> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.getProfile(userId);
 
     if (!user || !user.balance) {
       throw new NotFoundException(
