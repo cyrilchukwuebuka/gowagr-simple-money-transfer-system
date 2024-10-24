@@ -118,8 +118,8 @@ The API is documented using Swagger, and you can access the Swagger UI at the fo
 
 The API uses JWT (JSON Web Token) for authentication. To access protected routes, you need to obtain a token and include it in the Authorization header.
 
-- Register a new user (POST /api/users)
-- Login to get a token (POST /api/auth/login)
+- Register a new user (POST /api/v1/users)
+- Login to get a token (POST /api/v1/auth/login)
 
   ```
   Authorization: Bearer your_jwt_token

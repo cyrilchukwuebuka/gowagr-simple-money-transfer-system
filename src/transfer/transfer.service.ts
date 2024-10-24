@@ -5,11 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  PaginateQuery,
-  Paginated,
-  paginate
-} from 'nestjs-paginate';
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate';
 import { BalanceService } from 'src/balance/balance.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -89,9 +85,10 @@ export class TransferService {
       }
 
       sender.balance.amount = parseFloat(sender.balance.amount + '') - amount;
-      this.balanceService.updateUserBalance(user_id, sender.balance);
+      this.balanceService.updateUserBalance(sender.id, sender.balance);
       receiver.balance.amount =
         parseFloat(receiver.balance.amount + '') + amount;
+      this.balanceService.updateUserBalance(receiver.id, sender.balance);
 
       transfer = new Transfer();
       transfer.amount = amount;
@@ -102,6 +99,7 @@ export class TransferService {
 
       await queryRunner.manager.save(sender);
       await queryRunner.manager.save(receiver);
+      await queryRunner.manager.save(transfer);
 
       await queryRunner.commitTransaction();
     } catch (err) {
